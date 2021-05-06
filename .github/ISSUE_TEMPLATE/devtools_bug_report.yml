@@ -1,0 +1,43 @@
+name: "DevTools bug report"
+description: "Report a problem with React DevTools"
+title: "[DevTools Bug]: "
+labels: ["Component: Developer Tools", "Type: Bug", "Status: Unconfirmed"]
+body:
+  - type: input
+    attributes:
+      label: Location
+      description: |
+        Which website or app were you using when the bug happened?
+      placeholder: |
+        e.g. website URL, public GitHub repo, or Code Sandbox app
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Repro steps
+      description: |
+        What were you doing on the website or app when the bug happened?
+      placeholder: |
+        Please describe how to reproduce this bug on the website or app mentioned above:
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: input
+    id: automated_version
+    attributes:
+      label: DevTools version (automated)
+      description: |
+        Please do not edit the information in this field
+    validations:
+      required: true
+  - type: textarea
+    id: automated_error
+    attributes:
+      label: Error information (automated)
+      description: |
+        Please do not edit the information in this field
+      render: text
+    validations:
+      required: true
