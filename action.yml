@@ -1,13 +1,60 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
-inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
-runs:
-  using: 'node12'
-  main: 'bvaughn/test-github-actions/index.js'
+name: Check for repro
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  check-repro:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const user = context.payload.sender.login;
+            const body = context.payload.comment
+              ? context.payload.comment.body
+              : context.payload.issue.body;
+
+            const URL_REGEXP = /### Website or app\n\n([^#]+)###/m;
+            const REPRO_STEPS_REGEXP = /### Repro steps\n\n([^#]+)###/m;
+
+            const urlMatch = body.match(URL_REGEXP);
+            const reproStepsMatch = body.match(REPRO_STEPS_REGEXP);
+
+            const url = urlMatch !== null ? urlMatch[1].trim() : null;
+            const reproSteps = reproStepsMatch !== null ? reproStepsMatch[1].trim() : null;
+
+            let commentToAdd = null;
+
+            if (url && url.includes('localhost')) {
+              commentToAdd = `
+                The URL "localhost" is not valid.
+              `;
+            } else if (url && url.includes(' website')) {
+              commentToAdd = `
+                Please provide a URL to a public website, GitHub repro, or Code Sandbox.
+              `;
+            } else if (reproSteps && reproSteps.length < 25) {
+              commentToAdd = `
+                Please provide repro steps.
+              `;
+            }
+            
+            if (commentToAdd !== null) {
+              await github.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentToAdd.split('\n').map(line => line.trim()).join('\n').trim(),
+              });
+
+              await github.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['Resolution: Needs More Information'],
+              });
+            }
