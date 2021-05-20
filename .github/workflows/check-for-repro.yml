@@ -94,9 +94,10 @@ jobs:
                 labels: ["Resolution: Needs More Information"],
               });
 
-              await github.issues.close({
+              await github.issues.update({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
+                state: 'closed',
               });
             }
