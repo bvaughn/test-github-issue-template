@@ -74,7 +74,10 @@ jobs:
                 repo: context.repo.repo,
               });
 
-              if (comments.data.some(comment => comment.body.includes('Here are some tips'))) {
+              if (comments.data.some(comment => {
+                console.log('comment:', comment);
+                return comment.owner === 'github-actions');
+              }) {
                 return;
               }
 
