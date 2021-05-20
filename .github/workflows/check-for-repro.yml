@@ -27,34 +27,70 @@ jobs:
             const url = urlMatch !== null ? urlMatch[1].trim() : null;
             const reproSteps = reproStepsMatch !== null ? reproStepsMatch[1].trim() : null;
 
+            const COMMENT_HEADER = `
+                          @${user}: We're sorry you've seen this error.
+
+                          Unfortunately, it doesn't look like this issue has enough info for one of us to reproduce and fix it though.
+                        `;
+
+            const COMMENT_FOOTER = `
+                          Please help us by providing a link to a CodeSandbox (https://codesandbox.io/s/new), a repository on GitHub, or a minimal code example that reproduces the problem. (Screenshots or videos can also be helpful if they help provide context on how to repro the bug.)
+
+                          Here are some tips for providing a minimal example: https://stackoverflow.com/help/mcve
+                        `;
+
             let commentToAdd = null;
 
-            if (url && url.includes('localhost')) {
+            if (url && url.includes("/localhost")) {
               commentToAdd = `
-                The URL "localhost" is not valid.
-              `;
-            } else if (url && url.includes(' website')) {
+                            ${COMMENT_HEADER}
+
+                            The URL "localhost" is not publicly accessible.
+
+                            ${COMMENT_FOOTER}
+                          `;
+            } else if (url && url.includes(" website")) {
               commentToAdd = `
-                Please provide a URL to a public website, GitHub repro, or Code Sandbox.
-              `;
+                            ${COMMENT_HEADER}
+
+                            It looks like you've provided an invalid URL.
+
+                            ${COMMENT_FOOTER}
+                          `;
             } else if (reproSteps && reproSteps.length < 25) {
               commentToAdd = `
-                Please provide repro steps.
-              `;
+                            ${COMMENT_HEADER}
+
+                            ${COMMENT_FOOTER}
+                          `;
             }
-            
+
             if (commentToAdd !== null) {
+              const comments = await github.issues.listComments({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+
+              if (comments.data.some(comment => comment.body.includes('Please help us by providing a link to a CodeSandbox'))) {
+                return;
+              }
+
               await github.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: commentToAdd.split('\n').map(line => line.trim()).join('\n').trim(),
+                body: commentToAdd
+                  .split("\n")
+                  .map((line) => line.trim())
+                  .join("\n")
+                  .trim(),
               });
 
               await github.issues.addLabels({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                labels: ['Resolution: Needs More Information'],
+                labels: ["Resolution: Needs More Information"],
               });
             }
