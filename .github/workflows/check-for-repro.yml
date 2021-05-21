@@ -74,12 +74,12 @@ jobs:
                 repo: context.repo.repo,
               });
 
-              core.debug('found comments:');
-              core.debug(comments);
+              core.info('found comments:');
+              core.info(comments);
 
               if (comments.data.some(comment => {
-                core.debug('comment:');
-                core.debug(comment);
+                core.info('comment:');
+                core.info(comment);
                 return comment.owner === 'github-actions';
               })) {
                 return;
