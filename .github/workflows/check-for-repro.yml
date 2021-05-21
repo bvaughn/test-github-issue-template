@@ -13,9 +13,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const NEEDS_MORE_INFORMATION_LABEL = "Resolution: Needs More Information";
             const URL_REGEXP = /### Website or app[\r\n]+([^#]+)###/m;
             const REPRO_STEPS_REGEXP = /### Repro steps[\r\n]+([^#]+)###/m;
+            const LABEL_NEEDS_MORE_INFORMATION = "Resolution: Needs More Information";
+            const LABEL_UNCONFIRMED = "Status: Unconfirmed";
 
             function debug(...args) {
               core.info(args.map(JSON.stringify).join(' '));
@@ -83,6 +84,13 @@ jobs:
                 return;
               }
 
+              const labels = await getIssueLabels();
+              const label = labels.find(label => label.name === LABEL_UNCONFIRMED);
+              if (!label) {
+                debug(`Issue was not opened via DevTools bug report template`);
+                return;
+              }
+
               const comments = await getGitHubActionComments();
               if (comments.length > 0) {
                 debug(`Already commented on issue; won't comment again`);
@@ -95,7 +103,7 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                labels: [NEEDS_MORE_INFORMATION_LABEL],
+                labels: [LABEL_NEEDS_MORE_INFORMATION],
               });
 
               await github.issues.createComment({
@@ -119,16 +127,16 @@ jobs:
                 return;
               }
 
-              const comments = await getGitHubActionComments();
-              if (comments.length === 0) {
-                debug(`Issue was closed by someone else; won't reopen`);
+              const labels = await getIssueLabels();
+              const label = labels.find(label => label.name === LABEL_NEEDS_MORE_INFORMATION);
+              if (!label) {
+                debug(`Issue was not tagged as needs information`);
                 return;
               }
 
-              const labels = await getIssueLabels();
-              const label = labels.find(label => label.name === NEEDS_MORE_INFORMATION_LABEL);
-              if (!label) {
-                debug(`Issue was not tagged as needs information`);
+              const comments = await getGitHubActionComments();
+              if (comments.length === 0) {
+                debug(`Issue was closed by someone else; won't reopen`);
                 return;
               }
 
@@ -138,7 +146,7 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                name: NEEDS_MORE_INFORMATION_LABEL,
+                name: LABEL_NEEDS_MORE_INFORMATION,
               });
 
               await github.issues.createComment({
@@ -196,6 +204,6 @@ jobs:
               `);
             } else {
               openWithComment(`
-                Thanks for providing repro steps! Re-opening issue now.
+                Thank you for providing repro steps! Re-opening issue now for triage.
               `);
             }
