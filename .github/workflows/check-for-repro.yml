@@ -89,8 +89,8 @@ jobs:
               log('found comments: ' + JSON.stringify(comments));
 
               if (comments.data.some(comment => {
-                log('comment.owner: ' + JSON.stringify(comment.owner));
-                return comment.owner === 'github-actions';
+                log('comment.user.login: ' + JSON.stringify(comment.user.login));
+                return comment.user.login === 'github-actions';
               })) {
                 return;
               }
