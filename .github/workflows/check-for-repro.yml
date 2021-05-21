@@ -27,8 +27,8 @@ jobs:
             const url = urlMatch !== null ? urlMatch[1].trim() : null;
             const reproSteps = reproStepsMatch !== null ? reproStepsMatch[1].trim() : null;
 
-            core.info('url:', url);
-            core.info('reproSteps:', reproSteps);
+            core.info('url: ' + url);
+            core.info('reproSteps: ' + reproSteps);
 
             const COMMENT_HEADER = `
               @${user}: We're sorry you've seen this error. ❤️
@@ -70,7 +70,7 @@ jobs:
               `;
             }
 
-            core.info('commentToAdd:', commentToAdd);
+            core.info('commentToAdd: ' + commentToAdd);
 
             if (commentToAdd !== null) {
               const comments = await github.issues.listComments({
@@ -79,12 +79,10 @@ jobs:
                 repo: context.repo.repo,
               });
 
-              core.info('found comments:');
-              core.info(comments);
+              core.info('found comments: ' + JSON.stringify(comments));
 
               if (comments.data.some(comment => {
-                core.info('comment:');
-                core.info(comment);
+                core.info('comment.owner: ' + JSON.stringify(comment.owner));
                 return comment.owner === 'github-actions';
               })) {
                 return;
