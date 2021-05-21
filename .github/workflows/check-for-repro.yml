@@ -31,6 +31,11 @@ jobs:
             const url = urlMatch !== null ? urlMatch[1].trim() : null;
             const reproSteps = reproStepsMatch !== null ? reproStepsMatch[1].trim() : null;
 
+            if (!url || !reproSteps) {
+              debug('This issue is not a DevTools bug report.');
+              return;
+            }
+
             debug(`found URL "${url}"`);
             debug(`found repro steps "${reproSteps}"`);
 
