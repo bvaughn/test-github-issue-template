@@ -1,4 +1,4 @@
-name: Check for repro
+name: DevTools Check for bug repro
 on:
   issues:
     types: [opened, edited]
@@ -39,6 +39,8 @@ jobs:
             debug(`found URL "${url}"`);
             debug(`found repro steps "${reproSteps}"`);
 
+            const PROBABLY_NOT_A_URL_REGEX = /(^Chrome$|^Firefox$| Website)/i;
+
             const COMMENT_HEADER = `
               @${user}: We're sorry you've seen this error. ❤️
             `.trim();
@@ -53,7 +55,7 @@ jobs:
 
             let commentToAdd = null;
 
-            if (url && url.includes("/localhost")) {
+            if (url.includes("/localhost")) {
               commentToAdd = `
                 ${COMMENT_HEADER}
 
@@ -61,7 +63,7 @@ jobs:
 
                 ${COMMENT_FOOTER}
               `;
-            } else if (url && url.includes(" website")) {
+            } else if (url.length < 10 || url.match(PROBABLY_NOT_A_URL_REGEX)) {
               commentToAdd = `
                 ${COMMENT_HEADER}
 
@@ -69,7 +71,7 @@ jobs:
 
                 ${COMMENT_FOOTER}
               `;
-            } else if (reproSteps && reproSteps.length < 25) {
+            } else if (reproSteps.length < 25) {
               commentToAdd = `
                 ${COMMENT_HEADER}
 
