@@ -75,7 +75,8 @@ jobs:
               });
 
               if (comments.data.some(comment => {
-                console.log('comment:', comment);
+                core.debug('comment:');
+                core.debug(comment);
                 return comment.owner === 'github-actions';
               })) {
                 return;
