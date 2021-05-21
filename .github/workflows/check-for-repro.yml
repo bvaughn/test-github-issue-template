@@ -22,9 +22,6 @@ jobs:
               core.info(args.map(JSON.stringify).join(' '));
             }
 
-            log('user: ' + user);
-            log('body: ' + body);
-
             const URL_REGEXP = /### Website or app[\r\n]+([^#]+)###/m;
             const REPRO_STEPS_REGEXP = /### Repro steps[\r\n]+([^#]+)###/m;
 
