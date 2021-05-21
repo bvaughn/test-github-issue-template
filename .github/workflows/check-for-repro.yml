@@ -13,19 +13,22 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const user = context.payload.sender.login;
-            const body = context.payload.comment
-              ? context.payload.comment.body
-              : context.payload.issue.body;
+            const NEEDS_MORE_INFORMATION_LABEL = "Resolution: Needs More Information";
+            const URL_REGEXP = /### Website or app[\r\n]+([^#]+)###/m;
+            const REPRO_STEPS_REGEXP = /### Repro steps[\r\n]+([^#]+)###/m;
 
             function debug(...args) {
               core.info(args.map(JSON.stringify).join(' '));
             }
 
-            const NEEDS_MORE_INFORMATION_LABEL = "Resolution: Needs More Information";
+            if (context.payload.comment) {
+              debug('Ignoring comment update.');
+              return;
+            }
 
-            const URL_REGEXP = /### Website or app[\r\n]+([^#]+)###/m;
-            const REPRO_STEPS_REGEXP = /### Repro steps[\r\n]+([^#]+)###/m;
+            const user = context.payload.sender.login;
+            const issue = context.payload.issue;
+            const body = issue.body;
 
             const urlMatch = body.match(URL_REGEXP);
             const reproStepsMatch = body.match(REPRO_STEPS_REGEXP);
