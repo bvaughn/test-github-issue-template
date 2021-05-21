@@ -27,6 +27,9 @@ jobs:
             const url = urlMatch !== null ? urlMatch[1].trim() : null;
             const reproSteps = reproStepsMatch !== null ? reproStepsMatch[1].trim() : null;
 
+            core.info('url:', url);
+            core.info('reproSteps:', reproSteps);
+
             const COMMENT_HEADER = `
               @${user}: We're sorry you've seen this error. ❤️
             `.trim();
@@ -66,6 +69,8 @@ jobs:
                 ${COMMENT_FOOTER}
               `;
             }
+
+            core.info('commentToAdd:', commentToAdd);
 
             if (commentToAdd !== null) {
               const comments = await github.issues.listComments({
