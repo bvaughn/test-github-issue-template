@@ -68,11 +68,13 @@ jobs:
             }
 
             async function getIssueLabels() {
-              return github.issues.listLabelsOnIssue({
+              const issues = await github.issues.listLabelsOnIssue({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               });
+
+              return issues.data;
             }
 
             async function closeWithComment(comment) {
