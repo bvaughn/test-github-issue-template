@@ -74,6 +74,9 @@ jobs:
                 repo: context.repo.repo,
               });
 
+              core.debug('found comments:');
+              core.debug(comments);
+
               if (comments.data.some(comment => {
                 core.debug('comment:');
                 core.debug(comment);
