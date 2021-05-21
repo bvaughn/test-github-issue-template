@@ -138,7 +138,7 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                label: NEEDS_MORE_INFORMATION_LABEL,
+                label,
               });
 
               await github.issues.createComment({
