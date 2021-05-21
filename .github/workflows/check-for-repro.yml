@@ -18,7 +18,7 @@ jobs:
               ? context.payload.comment.body
               : context.payload.issue.body;
 
-            function log(...args) {
+            function debug(...args) {
               core.info(args.map(JSON.stringify).join(' '));
             }
 
@@ -34,8 +34,8 @@ jobs:
             const url = urlMatch !== null ? urlMatch[1].trim() : null;
             const reproSteps = reproStepsMatch !== null ? reproStepsMatch[1].trim() : null;
 
-            log('url: ' + url);
-            log('reproSteps: ' + reproSteps);
+            debug(`found URL "${url}"`);
+            debug(`found repro steps "${reproSteps}"`);
 
             const COMMENT_HEADER = `
               @${user}: We're sorry you've seen this error. ❤️
@@ -77,7 +77,7 @@ jobs:
               `;
             }
 
-            log('commentToAdd: ' + commentToAdd);
+            debug(`Missing required information? ${!!commentToAdd}`);
 
             if (commentToAdd !== null) {
               const comments = await github.issues.listComments({
@@ -86,11 +86,12 @@ jobs:
                 repo: context.repo.repo,
               });
 
-              log('found comments: ' + JSON.stringify(comments));
+              debug(`Searching ${comments.data.length} existing comments...`);
 
               if (comments.data.some(comment => {
-                log('comment.user.login: ' + JSON.stringify(comment.user.login));
-                return comment.user.login === 'github-actions';
+                debug(`comment by user: "${comment.user.login}"`);
+
+                return comment.user.login === 'github-actions[bot]';
               })) {
                 return;
               }
