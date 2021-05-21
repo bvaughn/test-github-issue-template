@@ -76,7 +76,7 @@ jobs:
 
               if (comments.data.some(comment => {
                 console.log('comment:', comment);
-                return comment.owner === 'github-actions');
+                return comment.owner === 'github-actions';
               })) {
                 return;
               }
