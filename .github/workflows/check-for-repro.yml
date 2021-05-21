@@ -73,8 +73,12 @@ jobs:
             }
 
             async function closeWithComment(comment) {
-              const comments = await getGitHubActionComments();
+              if (issue.state !== 'open') {
+                debug(`Issue is not open`);
+                return;
+              }
 
+              const comments = await getGitHubActionComments();
               if (comments.length > 0) {
                 debug(`Already commented on issue; won't comment again`);
                 return;
