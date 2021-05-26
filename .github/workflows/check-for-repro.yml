@@ -53,14 +53,6 @@ jobs:
                 .trim();
             }
 
-            async function createCheck(status) {
-              await github.checks.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                conclusion: status,
-              });
-            }
-
             async function getGitHubActionComments() {
               debug(`Loading existing comments...`);
 
@@ -89,7 +81,6 @@ jobs:
             async function closeWithComment(comment) {
               if (issue.state !== 'open') {
                 debug(`Issue is not open`);
-                await createCheck('skipped');
                 return;
               }
 
@@ -97,14 +88,12 @@ jobs:
               const label = labels.find(label => label.name === LABEL_UNCONFIRMED);
               if (!label) {
                 debug(`Issue was not opened via DevTools bug report template`);
-                await createCheck('skipped');
                 return;
               }
 
               const comments = await getGitHubActionComments();
               if (comments.length > 0) {
                 debug(`Already commented on issue; won't comment again`);
-                await createCheck('skipped');
                 return;
               }
 
@@ -125,18 +114,16 @@ jobs:
               });
 
               await github.issues.update({
+                issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 state: 'closed',
               });
-
-              await createCheck('action_required');
             }
 
             async function openWithComment(comment) {
               if (issue.state !== 'closed') {
                 debug(`Issue is already open`);
-                await createCheck('skipped');
                 return;
               }
 
@@ -144,14 +131,12 @@ jobs:
               const label = labels.find(label => label.name === LABEL_NEEDS_MORE_INFORMATION);
               if (!label) {
                 debug(`Issue was not tagged as needs information`);
-                await createCheck('skipped');
                 return;
               }
 
               const comments = await getGitHubActionComments();
               if (comments.length === 0) {
                 debug(`Issue was closed by someone else; won't reopen`);
-                await createCheck('skipped');
                 return;
               }
 
@@ -177,8 +162,6 @@ jobs:
                 repo: context.repo.repo,
                 state: 'open',
               });
-
-              await createCheck('success');
             }
 
             const PROBABLY_NOT_A_URL_REGEX = /(^Chrome$|^Firefox$| Website)/i;
