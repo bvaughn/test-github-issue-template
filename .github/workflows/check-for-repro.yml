@@ -125,7 +125,7 @@ jobs:
               });
 
               await createComment(comment);
-              await updateIssue('closed');
+              await updateIssue('closed', [user]);
             }
 
             async function openWithComment(comment) {
@@ -157,7 +157,7 @@ jobs:
               });
 
               await createComment(comment);
-              await updateIssue('open', [comment.user.login]);
+              await updateIssue('open');
             }
 
             const PROBABLY_NOT_A_URL_REGEX = /(^Chrome$|^Firefox$| Website)/i;
